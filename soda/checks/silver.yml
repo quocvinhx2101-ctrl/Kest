@@ -1,0 +1,2 @@
+checks for silver_example_events:
+  - duplicate_count(source_id) = 0

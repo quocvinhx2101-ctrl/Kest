@@ -1,0 +1,6 @@
+[pipeline]
+name = "example"
+destination = "filesystem"
+
+[filesystem]
+bucket_url = "s3://${MINIO_BUCKET}/bronze"

@@ -1,0 +1,133 @@
+[2026-05-24T20:31:19.640+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-05-24T20:31:19.664+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:31:18.918933+00:00 [queued]>
+[2026-05-24T20:31:19.670+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:31:18.918933+00:00 [queued]>
+[2026-05-24T20:31:19.670+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2026-05-24T20:31:19.678+0000] {taskinstance.py:2330} INFO - Executing <Task(_BashDecoratedOperator): run_dlt> on 2026-05-24 20:31:18.918933+00:00
+[2026-05-24T20:31:19.685+0000] {logging_mixin.py:188} WARNING - /home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py:62 DeprecationWarning: This process (pid=173) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-05-24T20:31:19.684+0000] {standard_task_runner.py:90} INFO - Running: ['airflow', 'tasks', 'run', 'kest_example_pipeline', 'run_dlt', 'manual__2026-05-24T20:31:18.918933+00:00', '--job-id', '12', '--raw', '--subdir', 'DAGS_FOLDER/kest_example_dag.py', '--cfg-path', '/tmp/tmpfegfqmf5']
+[2026-05-24T20:31:19.686+0000] {standard_task_runner.py:64} INFO - Started process 174 to run task
+[2026-05-24T20:31:19.686+0000] {standard_task_runner.py:91} INFO - Job 12: Subtask run_dlt
+[2026-05-24T20:31:19.715+0000] {task_command.py:426} INFO - Running <TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:31:18.918933+00:00 [running]> on host ce2633b30e87
+[2026-05-24T20:31:19.766+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='kest' AIRFLOW_CTX_DAG_ID='kest_example_pipeline' AIRFLOW_CTX_TASK_ID='run_dlt' AIRFLOW_CTX_EXECUTION_DATE='2026-05-24T20:31:18.918933+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-24T20:31:18.918933+00:00'
+[2026-05-24T20:31:19.767+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-05-24T20:31:19.784+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-05-24T20:31:19.785+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', "bash -lc 'bash /opt/kest/scripts/run_dlt.sh'"]
+[2026-05-24T20:31:19.792+0000] {subprocess.py:86} INFO - Output:
+[2026-05-24T20:31:19.799+0000] {subprocess.py:93} INFO - Bootstrapping MinIO bucket...
+[2026-05-24T20:31:20.574+0000] {subprocess.py:93} INFO - Running dlt pipeline...
+[2026-05-24T20:31:23.705+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 752, in sync_destination
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -     remote_state = self._restore_state_from_destination()
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 1491, in _restore_state_from_destination
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -     with self._get_destination_clients(schema)[0] as job_client:
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 1252, in _get_destination_clients
+[2026-05-24T20:31:23.706+0000] {subprocess.py:93} INFO -     client = self.destination.client(schema, initial_config)
+[2026-05-24T20:31:23.707+0000] {subprocess.py:93} INFO -              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.707+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/common/destination/reference.py", line 728, in client
+[2026-05-24T20:31:23.707+0000] {subprocess.py:93} INFO -     config = self.configuration(initial_config)
+[2026-05-24T20:31:23.707+0000] {subprocess.py:93} INFO -              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.707+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/common/destination/reference.py", line 715, in configuration
+[2026-05-24T20:31:23.708+0000] {subprocess.py:93} INFO -     config = resolve_configuration(
+[2026-05-24T20:31:23.708+0000] {subprocess.py:93} INFO -              ^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.708+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/common/configuration/resolve.py", line 67, in resolve_configuration
+[2026-05-24T20:31:23.709+0000] {subprocess.py:93} INFO -     return _resolve_configuration(config, sections, (), explicit_value, accept_partial)
+[2026-05-24T20:31:23.709+0000] {subprocess.py:93} INFO -            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.709+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/common/configuration/resolve.py", line 164, in _resolve_configuration
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO -     _resolve_config_fields(
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/common/configuration/resolve.py", line 300, in _resolve_config_fields
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO -     raise ConfigFieldMissingException(type(config).__name__, unresolved_fields)
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - dlt.common.configuration.exceptions.ConfigFieldMissingException: Following fields are missing: ['bucket_url'] in configuration with spec FilesystemDestinationClientConfiguration
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - 	for field "bucket_url" config providers and keys were tried in following order:
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - 		In Environment Variables key EXAMPLE__DESTINATION__FILESYSTEM__BUCKET_URL was not found.
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - 		In Environment Variables key EXAMPLE__DESTINATION__BUCKET_URL was not found.
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - 		In Environment Variables key EXAMPLE__BUCKET_URL was not found.
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key example.destination.filesystem.bucket_url was not found.
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key example.destination.bucket_url was not found.
+[2026-05-24T20:31:23.710+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key example.bucket_url was not found.
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 		In Environment Variables key DESTINATION__FILESYSTEM__BUCKET_URL was not found.
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 		In Environment Variables key DESTINATION__BUCKET_URL was not found.
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 		In Environment Variables key BUCKET_URL was not found.
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key destination.filesystem.bucket_url was not found.
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key destination.bucket_url was not found.
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key bucket_url was not found.
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - WARNING: dlt looks for .dlt folder in your current working directory and your cwd (/opt/kest/dlt) is different from directory of your pipeline script (/opt/kest/dlt/pipelines/example).
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - If you keep your secret files in the same folder as your pipeline script but run your script from some other folder, secrets/configs will not be found
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - Please refer to https://dlthub.com/docs/general-usage/credentials for more information
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - The above exception was the direct cause of the following exception:
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2026-05-24T20:31:23.711+0000] {subprocess.py:93} INFO -   File "/opt/kest/dlt/pipelines/example/run.py", line 19, in <module>
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -     run()
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -   File "/opt/kest/dlt/pipelines/example/run.py", line 14, in run
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -     pipeline.run(example_source())
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 222, in _wrap
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -     step_info = f(self, *args, **kwargs)
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -                 ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 267, in _wrap
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -     return f(self, *args, **kwargs)
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -            ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 692, in run
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -     self.sync_destination(destination, staging, dataset_name)
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 176, in _wrap
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -     rv = f(self, *args, **kwargs)
+[2026-05-24T20:31:23.712+0000] {subprocess.py:93} INFO -          ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 821, in sync_destination
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO -     raise PipelineStepFailed(self, "sync", None, ex, None) from ex
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - dlt.pipeline.exceptions.PipelineStepFailed: Pipeline execution failed at stage sync with exception:
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - <class 'dlt.common.configuration.exceptions.ConfigFieldMissingException'>
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - Following fields are missing: ['bucket_url'] in configuration with spec FilesystemDestinationClientConfiguration
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - 	for field "bucket_url" config providers and keys were tried in following order:
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - 		In Environment Variables key EXAMPLE__DESTINATION__FILESYSTEM__BUCKET_URL was not found.
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - 		In Environment Variables key EXAMPLE__DESTINATION__BUCKET_URL was not found.
+[2026-05-24T20:31:23.713+0000] {subprocess.py:93} INFO - 		In Environment Variables key EXAMPLE__BUCKET_URL was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key example.destination.filesystem.bucket_url was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key example.destination.bucket_url was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key example.bucket_url was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Environment Variables key DESTINATION__FILESYSTEM__BUCKET_URL was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Environment Variables key DESTINATION__BUCKET_URL was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Environment Variables key BUCKET_URL was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key destination.filesystem.bucket_url was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key destination.bucket_url was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 		In Airflow Secrets TOML Provider key bucket_url was not found.
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - WARNING: dlt looks for .dlt folder in your current working directory and your cwd (/opt/kest/dlt) is different from directory of your pipeline script (/opt/kest/dlt/pipelines/example).
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - If you keep your secret files in the same folder as your pipeline script but run your script from some other folder, secrets/configs will not be found
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - Please refer to https://dlthub.com/docs/general-usage/credentials for more information
+[2026-05-24T20:31:23.714+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:31:24.177+0000] {subprocess.py:97} INFO - Command exited with return code 1
+[2026-05-24T20:31:24.178+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-05-24T20:31:24.185+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/bash.py", line 81, in execute
+    return super().execute(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/base.py", line 265, in execute
+    return_value = super().execute(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/bash.py", line 243, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2026-05-24T20:31:24.188+0000] {taskinstance.py:1206} INFO - Marking task as UP_FOR_RETRY. dag_id=kest_example_pipeline, task_id=run_dlt, run_id=manual__2026-05-24T20:31:18.918933+00:00, execution_date=20260524T203118, start_date=20260524T203119, end_date=20260524T203124
+[2026-05-24T20:31:24.194+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 12 for task run_dlt (Bash command failed. The command returned a non-zero exit code 1.; 174)
+[2026-05-24T20:31:24.231+0000] {local_task_job_runner.py:243} INFO - Task exited with return code 1
+[2026-05-24T20:31:24.245+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-05-24T20:31:24.246+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

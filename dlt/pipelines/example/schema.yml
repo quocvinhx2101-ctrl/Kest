@@ -1,0 +1,13 @@
+name: example
+version: 1
+resources:
+  example_events:
+    columns:
+      _ingested_at:
+        data_type: text
+      _source:
+        data_type: text
+      _batch_id:
+        data_type: text
+      _raw_payload:
+        data_type: json

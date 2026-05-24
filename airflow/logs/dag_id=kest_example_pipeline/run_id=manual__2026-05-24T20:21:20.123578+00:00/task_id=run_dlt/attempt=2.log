@@ -1,0 +1,64 @@
+[2026-05-24T20:26:21.436+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-05-24T20:26:21.473+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:21:20.123578+00:00 [queued]>
+[2026-05-24T20:26:21.482+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:21:20.123578+00:00 [queued]>
+[2026-05-24T20:26:21.482+0000] {taskinstance.py:2306} INFO - Starting attempt 2 of 2
+[2026-05-24T20:26:21.493+0000] {taskinstance.py:2330} INFO - Executing <Task(BashOperator): run_dlt> on 2026-05-24 20:21:20.123578+00:00
+[2026-05-24T20:26:21.500+0000] {standard_task_runner.py:90} INFO - Running: ['airflow', 'tasks', 'run', 'kest_example_pipeline', 'run_dlt', 'manual__2026-05-24T20:21:20.123578+00:00', '--job-id', '7', '--raw', '--subdir', 'DAGS_FOLDER/kest_example_dag.py', '--cfg-path', '/tmp/tmpdllck3hh']
+[2026-05-24T20:26:21.502+0000] {standard_task_runner.py:91} INFO - Job 7: Subtask run_dlt
+[2026-05-24T20:26:21.509+0000] {logging_mixin.py:188} WARNING - /home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py:62 DeprecationWarning: This process (pid=232) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-05-24T20:26:21.509+0000] {standard_task_runner.py:64} INFO - Started process 233 to run task
+[2026-05-24T20:26:21.543+0000] {task_command.py:426} INFO - Running <TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:21:20.123578+00:00 [running]> on host ce2633b30e87
+[2026-05-24T20:26:21.575+0000] {abstractoperator.py:725} ERROR - Exception rendering Jinja template for task 'run_dlt', field 'bash_command'. Template: 'bash /opt/kest/scripts/run_dlt.sh'
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/abstractoperator.py", line 717, in _do_render_template_fields
+    rendered_content = self.render_template(
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/template/templater.py", line 166, in render_template
+    template = jinja_env.get_template(value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/loaders.py", line 207, in get_source
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: bash /opt/kest/scripts/run_dlt.sh
+[2026-05-24T20:26:21.577+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 2479, in _run_raw_task
+    self._execute_task_with_callbacks(context, test_mode, session=session)
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 2633, in _execute_task_with_callbacks
+    task_orig = self.render_templates(context=context, jinja_env=jinja_env)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 3094, in render_templates
+    original_task.render_template_fields(context, jinja_env)
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 1337, in render_template_fields
+    self._do_render_template_fields(self, self.template_fields, context, jinja_env, set())
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/abstractoperator.py", line 717, in _do_render_template_fields
+    rendered_content = self.render_template(
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/template/templater.py", line 166, in render_template
+    template = jinja_env.get_template(value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/jinja2/loaders.py", line 207, in get_source
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: bash /opt/kest/scripts/run_dlt.sh
+[2026-05-24T20:26:21.585+0000] {taskinstance.py:1206} INFO - Marking task as FAILED. dag_id=kest_example_pipeline, task_id=run_dlt, run_id=manual__2026-05-24T20:21:20.123578+00:00, execution_date=20260524T202120, start_date=20260524T202621, end_date=20260524T202621
+[2026-05-24T20:26:21.594+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 7 for task run_dlt (bash /opt/kest/scripts/run_dlt.sh; 233)
+[2026-05-24T20:26:21.602+0000] {local_task_job_runner.py:243} INFO - Task exited with return code 1
+[2026-05-24T20:26:21.620+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-05-24T20:26:21.622+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

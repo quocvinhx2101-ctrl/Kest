@@ -1,0 +1,56 @@
+[2026-05-24T20:46:37.710+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-05-24T20:46:37.733+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: kest_example_pipeline.run_bronze_validation manual__2026-05-24T20:46:30.473712+00:00 [queued]>
+[2026-05-24T20:46:37.738+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: kest_example_pipeline.run_bronze_validation manual__2026-05-24T20:46:30.473712+00:00 [queued]>
+[2026-05-24T20:46:37.739+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2026-05-24T20:46:37.746+0000] {taskinstance.py:2330} INFO - Executing <Task(_BashDecoratedOperator): run_bronze_validation> on 2026-05-24 20:46:30.473712+00:00
+[2026-05-24T20:46:37.751+0000] {standard_task_runner.py:90} INFO - Running: ['airflow', 'tasks', 'run', 'kest_example_pipeline', 'run_bronze_validation', 'manual__2026-05-24T20:46:30.473712+00:00', '--job-id', '38', '--raw', '--subdir', 'DAGS_FOLDER/kest_example_dag.py', '--cfg-path', '/tmp/tmpylog0scw']
+[2026-05-24T20:46:37.753+0000] {standard_task_runner.py:91} INFO - Job 38: Subtask run_bronze_validation
+[2026-05-24T20:46:37.753+0000] {logging_mixin.py:188} WARNING - /home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py:62 DeprecationWarning: This process (pid=206) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-05-24T20:46:37.753+0000] {standard_task_runner.py:64} INFO - Started process 207 to run task
+[2026-05-24T20:46:37.781+0000] {task_command.py:426} INFO - Running <TaskInstance: kest_example_pipeline.run_bronze_validation manual__2026-05-24T20:46:30.473712+00:00 [running]> on host 097ef526d130
+[2026-05-24T20:46:37.828+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='kest' AIRFLOW_CTX_DAG_ID='kest_example_pipeline' AIRFLOW_CTX_TASK_ID='run_bronze_validation' AIRFLOW_CTX_EXECUTION_DATE='2026-05-24T20:46:30.473712+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-24T20:46:30.473712+00:00'
+[2026-05-24T20:46:37.829+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-05-24T20:46:37.846+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-05-24T20:46:37.847+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', "bash -lc 'bash /opt/kest/scripts/run_soda.sh bronze'"]
+[2026-05-24T20:46:37.854+0000] {subprocess.py:86} INFO - Output:
+[2026-05-24T20:46:37.860+0000] {subprocess.py:93} INFO - Running Soda checks (bronze)...
+[2026-05-24T20:46:38.028+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2026-05-24T20:46:38.028+0000] {subprocess.py:93} INFO -   File "/opt/kest/scripts/run_duckdb_etl.py", line 53, in <module>
+[2026-05-24T20:46:38.028+0000] {subprocess.py:93} INFO -     main()
+[2026-05-24T20:46:38.028+0000] {subprocess.py:93} INFO -   File "/opt/kest/scripts/run_duckdb_etl.py", line 33, in main
+[2026-05-24T20:46:38.028+0000] {subprocess.py:93} INFO -     conn = duckdb.connect(str(db_path))
+[2026-05-24T20:46:38.028+0000] {subprocess.py:93} INFO -            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:46:38.028+0000] {subprocess.py:93} INFO - duckdb.duckdb.IOException: IO Error: Cannot open file "/opt/kest/duckdb/kest.duckdb": Permission denied
+[2026-05-24T20:46:38.036+0000] {subprocess.py:97} INFO - Command exited with return code 1
+[2026-05-24T20:46:38.036+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-05-24T20:46:38.043+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/bash.py", line 81, in execute
+    return super().execute(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/base.py", line 265, in execute
+    return_value = super().execute(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/bash.py", line 243, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2026-05-24T20:46:38.046+0000] {taskinstance.py:1206} INFO - Marking task as UP_FOR_RETRY. dag_id=kest_example_pipeline, task_id=run_bronze_validation, run_id=manual__2026-05-24T20:46:30.473712+00:00, execution_date=20260524T204630, start_date=20260524T204637, end_date=20260524T204638
+[2026-05-24T20:46:38.052+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 38 for task run_bronze_validation (Bash command failed. The command returned a non-zero exit code 1.; 207)
+[2026-05-24T20:46:38.086+0000] {local_task_job_runner.py:243} INFO - Task exited with return code 1
+[2026-05-24T20:46:38.101+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-05-24T20:46:38.102+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

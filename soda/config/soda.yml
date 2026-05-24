@@ -1,0 +1,3 @@
+data_source kest_duckdb:
+  type: duckdb
+  path: /opt/kest/duckdb/kest.duckdb

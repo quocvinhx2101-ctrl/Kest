@@ -1,0 +1,148 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: kest-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: kest-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./data/minio:/data
+
+  airflow-init:
+    build:
+      context: ./airflow
+    image: kest-airflow:local
+    container_name: kest-airflow-init
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+      AIRFLOW__LOGGING__BASE_LOG_FOLDER: /opt/airflow/logs
+      AIRFLOW__LOGGING__DAG_PROCESSOR_MANAGER_LOG_LOCATION: /opt/airflow/logs/dag_processor_manager/dag_processor_manager.log
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: ${MINIO_ENDPOINT}
+      AWS_S3_ENDPOINT: ${MINIO_ENDPOINT}
+      DUCKDB_S3_REGION: ${DUCKDB_S3_REGION}
+      DUCKDB_S3_ENDPOINT: ${DUCKDB_S3_ENDPOINT}
+      DUCKDB_S3_ACCESS_KEY: ${DUCKDB_S3_ACCESS_KEY}
+      DUCKDB_S3_SECRET_KEY: ${DUCKDB_S3_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      EXAMPLE__DESTINATION__FILESYSTEM__BUCKET_URL: s3://${MINIO_BUCKET}/bronze
+    user: "${AIRFLOW_UID}:0"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./scripts:/opt/kest/scripts
+      - ./dlt:/opt/kest/dlt
+      - ./duckdb:/opt/kest/duckdb
+      - ./soda:/opt/kest/soda
+    entrypoint: /bin/bash
+    command: -c "airflow db init && airflow users create --username ${AIRFLOW_ADMIN_USER} --password ${AIRFLOW_ADMIN_PASSWORD} --firstname Admin --lastname User --role Admin --email ${AIRFLOW_ADMIN_EMAIL}"
+
+  airflow-webserver:
+    build:
+      context: ./airflow
+    image: kest-airflow:local
+    container_name: kest-airflow-webserver
+    depends_on:
+      - airflow-init
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+      AIRFLOW__LOGGING__BASE_LOG_FOLDER: /opt/airflow/logs
+      AIRFLOW__LOGGING__DAG_PROCESSOR_MANAGER_LOG_LOCATION: /opt/airflow/logs/dag_processor_manager/dag_processor_manager.log
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: ${MINIO_ENDPOINT}
+      AWS_S3_ENDPOINT: ${MINIO_ENDPOINT}
+      DUCKDB_S3_REGION: ${DUCKDB_S3_REGION}
+      DUCKDB_S3_ENDPOINT: ${DUCKDB_S3_ENDPOINT}
+      DUCKDB_S3_ACCESS_KEY: ${DUCKDB_S3_ACCESS_KEY}
+      DUCKDB_S3_SECRET_KEY: ${DUCKDB_S3_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      EXAMPLE__DESTINATION__FILESYSTEM__BUCKET_URL: s3://${MINIO_BUCKET}/bronze
+    user: "${AIRFLOW_UID}:0"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./scripts:/opt/kest/scripts
+      - ./dlt:/opt/kest/dlt
+      - ./duckdb:/opt/kest/duckdb
+      - ./soda:/opt/kest/soda
+    command: webserver
+
+  airflow-scheduler:
+    build:
+      context: ./airflow
+    image: kest-airflow:local
+    container_name: kest-airflow-scheduler
+    depends_on:
+      - airflow-init
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+      AIRFLOW__LOGGING__BASE_LOG_FOLDER: /opt/airflow/logs
+      AIRFLOW__LOGGING__DAG_PROCESSOR_MANAGER_LOG_LOCATION: /opt/airflow/logs/dag_processor_manager/dag_processor_manager.log
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: ${MINIO_ENDPOINT}
+      AWS_S3_ENDPOINT: ${MINIO_ENDPOINT}
+      DUCKDB_S3_REGION: ${DUCKDB_S3_REGION}
+      DUCKDB_S3_ENDPOINT: ${DUCKDB_S3_ENDPOINT}
+      DUCKDB_S3_ACCESS_KEY: ${DUCKDB_S3_ACCESS_KEY}
+      DUCKDB_S3_SECRET_KEY: ${DUCKDB_S3_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      EXAMPLE__DESTINATION__FILESYSTEM__BUCKET_URL: s3://${MINIO_BUCKET}/bronze
+    user: "${AIRFLOW_UID}:0"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./scripts:/opt/kest/scripts
+      - ./dlt:/opt/kest/dlt
+      - ./duckdb:/opt/kest/duckdb
+      - ./soda:/opt/kest/soda
+    command: scheduler
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: kest-metabase
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data/metabase:/metabase-data
+      - ./duckdb:/metabase/duckdb
+
+networks:
+  default:
+    name: kest

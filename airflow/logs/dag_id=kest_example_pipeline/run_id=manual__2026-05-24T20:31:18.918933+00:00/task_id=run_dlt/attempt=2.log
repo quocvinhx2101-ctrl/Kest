@@ -1,0 +1,113 @@
+[2026-05-24T20:36:24.879+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-05-24T20:36:24.910+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:31:18.918933+00:00 [queued]>
+[2026-05-24T20:36:24.917+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:31:18.918933+00:00 [queued]>
+[2026-05-24T20:36:24.917+0000] {taskinstance.py:2306} INFO - Starting attempt 2 of 2
+[2026-05-24T20:36:24.926+0000] {taskinstance.py:2330} INFO - Executing <Task(_BashDecoratedOperator): run_dlt> on 2026-05-24 20:31:18.918933+00:00
+[2026-05-24T20:36:24.932+0000] {standard_task_runner.py:90} INFO - Running: ['airflow', 'tasks', 'run', 'kest_example_pipeline', 'run_dlt', 'manual__2026-05-24T20:31:18.918933+00:00', '--job-id', '17', '--raw', '--subdir', 'DAGS_FOLDER/kest_example_dag.py', '--cfg-path', '/tmp/tmpum9516zm']
+[2026-05-24T20:36:24.934+0000] {logging_mixin.py:188} WARNING - /home/airflow/.local/lib/python3.12/site-packages/airflow/task/task_runner/standard_task_runner.py:62 DeprecationWarning: This process (pid=173) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2026-05-24T20:36:24.934+0000] {standard_task_runner.py:91} INFO - Job 17: Subtask run_dlt
+[2026-05-24T20:36:24.934+0000] {standard_task_runner.py:64} INFO - Started process 174 to run task
+[2026-05-24T20:36:24.970+0000] {task_command.py:426} INFO - Running <TaskInstance: kest_example_pipeline.run_dlt manual__2026-05-24T20:31:18.918933+00:00 [running]> on host 097ef526d130
+[2026-05-24T20:36:25.023+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='kest' AIRFLOW_CTX_DAG_ID='kest_example_pipeline' AIRFLOW_CTX_TASK_ID='run_dlt' AIRFLOW_CTX_EXECUTION_DATE='2026-05-24T20:31:18.918933+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-05-24T20:31:18.918933+00:00'
+[2026-05-24T20:36:25.024+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-05-24T20:36:25.046+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2026-05-24T20:36:25.047+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', "bash -lc 'bash /opt/kest/scripts/run_dlt.sh'"]
+[2026-05-24T20:36:25.056+0000] {subprocess.py:86} INFO - Output:
+[2026-05-24T20:36:25.062+0000] {subprocess.py:93} INFO - Bootstrapping MinIO bucket...
+[2026-05-24T20:36:25.726+0000] {subprocess.py:93} INFO - Running dlt pipeline...
+[2026-05-24T20:36:28.112+0000] {subprocess.py:93} INFO - [[34m2026-05-24T20:36:28.112+0000[0m] {[34mcredentials.py:[0m1147} INFO[0m - Found credentials in environment variables.[0m
+[2026-05-24T20:36:28.215+0000] {subprocess.py:93} INFO - [[34m2026-05-24T20:36:28.214+0000[0m] {[34mconfigprovider.py:[0m952} INFO[0m - Found endpoint for s3 via: environment_global.[0m
+[2026-05-24T20:36:28.323+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2026-05-24T20:36:28.323+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/extract/pipe_iterator.py", line 274, in _get_source_item
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO -     pipe_item = next(gen)
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO -                 ^^^^^^^^^
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO -   File "/opt/kest/dlt/pipelines/example/source.py", line 18, in events
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO -     "_batch_id": dlt.current.load_package_id(),
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO -                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO - AttributeError: module 'dlt.pipeline.current' has no attribute 'load_package_id'. Did you mean: 'load_package'?
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:36:28.324+0000] {subprocess.py:93} INFO - The above exception was the direct cause of the following exception:
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 433, in extract
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO -     self._extract_source(
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 1175, in _extract_source
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO -     load_id = extract.extract(
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO -               ^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/extract/extract.py", line 404, in extract
+[2026-05-24T20:36:28.325+0000] {subprocess.py:93} INFO -     self._extract_single_source(
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/extract/extract.py", line 327, in _extract_single_source
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO -     for pipe_item in pipes:
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/extract/pipe_iterator.py", line 158, in __next__
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO -     pipe_item = self._get_source_item()
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO -                 ^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/extract/pipe_iterator.py", line 305, in _get_source_item
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO -     raise ResourceExtractionError(pipe.name, gen, str(ex), "generator") from ex
+[2026-05-24T20:36:28.326+0000] {subprocess.py:93} INFO - dlt.extract.exceptions.ResourceExtractionError: In processing pipe example_events: extraction of resource example_events in generator events caused an exception: module 'dlt.pipeline.current' has no attribute 'load_package_id'
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO - The above exception was the direct cause of the following exception:
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO -   File "/opt/kest/dlt/pipelines/example/run.py", line 19, in <module>
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO -     run()
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO -   File "/opt/kest/dlt/pipelines/example/run.py", line 14, in run
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO -     pipeline.run(example_source())
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 222, in _wrap
+[2026-05-24T20:36:28.327+0000] {subprocess.py:93} INFO -     step_info = f(self, *args, **kwargs)
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -                 ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 267, in _wrap
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -     return f(self, *args, **kwargs)
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -            ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 710, in run
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -     self.extract(
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 222, in _wrap
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -     step_info = f(self, *args, **kwargs)
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -                 ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 176, in _wrap
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -     rv = f(self, *args, **kwargs)
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -          ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.328+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 162, in _wrap
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO -     return f(self, *args, **kwargs)
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO -            ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 267, in _wrap
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO -     return f(self, *args, **kwargs)
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO -            ^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO -   File "/home/airflow/.local/lib/python3.12/site-packages/dlt/pipeline/pipeline.py", line 453, in extract
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO -     raise PipelineStepFailed(
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO - dlt.pipeline.exceptions.PipelineStepFailed: Pipeline execution failed at stage extract when processing package 1779654988.270006 with exception:
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO - 
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO - <class 'dlt.extract.exceptions.ResourceExtractionError'>
+[2026-05-24T20:36:28.329+0000] {subprocess.py:93} INFO - In processing pipe example_events: extraction of resource example_events in generator events caused an exception: module 'dlt.pipeline.current' has no attribute 'load_package_id'
+[2026-05-24T20:36:28.874+0000] {subprocess.py:97} INFO - Command exited with return code 1
+[2026-05-24T20:36:28.875+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-05-24T20:36:28.882+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/bash.py", line 81, in execute
+    return super().execute(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/base.py", line 265, in execute
+    return_value = super().execute(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/bash.py", line 243, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2026-05-24T20:36:28.884+0000] {taskinstance.py:1206} INFO - Marking task as FAILED. dag_id=kest_example_pipeline, task_id=run_dlt, run_id=manual__2026-05-24T20:31:18.918933+00:00, execution_date=20260524T203118, start_date=20260524T203624, end_date=20260524T203628
+[2026-05-24T20:36:28.892+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 17 for task run_dlt (Bash command failed. The command returned a non-zero exit code 1.; 174)
+[2026-05-24T20:36:28.917+0000] {local_task_job_runner.py:243} INFO - Task exited with return code 1
+[2026-05-24T20:36:28.933+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-05-24T20:36:28.935+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

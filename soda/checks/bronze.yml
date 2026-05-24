@@ -1,0 +1,2 @@
+checks for bronze_example_events:
+  - row_count > 0
