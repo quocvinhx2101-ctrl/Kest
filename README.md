@@ -10,9 +10,10 @@ The canonical source of truth is [docs/architecture.md](docs/architecture.md). A
 
 - MinIO (object storage)
 - Apache Iceberg (table format)
-- PostgreSQL (Iceberg catalog + Airflow metadata DB)
+- PyIceberg (Iceberg DDL, writes, catalog management)
+- PostgreSQL (Iceberg SqlCatalog + Airflow metadata DB)
 - dlt (ingestion)
-- DuckDB (transform + serving)
+- DuckDB (compute transforms + serving reads via `iceberg_scan()`)
 - Airflow LocalExecutor (orchestration)
 - Metabase (BI)
 - Soda Core (data quality)
@@ -96,10 +97,11 @@ docker compose ps
 
 - `run_dlt`
 - `run_bronze_validation`
-- `run_duckdb_silver`
+- `run_silver` (DuckDB compute + PyIceberg write)
 - `run_silver_checks`
-- `run_duckdb_gold`
+- `run_gold` (PyIceberg read silver + DuckDB compute + PyIceberg write)
 - `run_gold_checks`
+- `refresh_serving_views` (DuckDB `iceberg_scan()` views)
 
 7. Verify artifacts in MinIO:
 
@@ -134,10 +136,11 @@ The example DAG runs the full lifecycle:
 
 1. Extract and load to bronze via dlt.
 2. Bronze validation via Soda.
-3. Silver transform via DuckDB (Iceberg on MinIO).
+3. Silver transform: DuckDB reads bronze, transforms; PyIceberg writes Iceberg tables.
 4. Silver quality checks via Soda.
-5. Gold transform via DuckDB (Iceberg on MinIO).
+5. Gold transform: PyIceberg reads silver, DuckDB transforms; PyIceberg writes Iceberg tables.
 6. Gold quality checks via Soda.
+7. Refresh DuckDB serving views via `iceberg_scan()`.
 
 Artifacts written:
 - Bronze: s3://lakehouse/bronze/example/example_events/

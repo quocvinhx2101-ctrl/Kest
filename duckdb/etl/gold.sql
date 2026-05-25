@@ -1,15 +1,3 @@
-USE kest_catalog;
-CREATE SCHEMA IF NOT EXISTS gold;
-
-CREATE TABLE IF NOT EXISTS gold.daily_metrics
-USING iceberg
-LOCATION 's3://lakehouse/gold/domain=example/entity=daily_metrics/';
-
-INSERT OVERWRITE gold.daily_metrics
-SELECT
-	date_trunc('day', event_time) AS event_date,
-	count(*) AS event_count,
-	min(ingested_at) AS ingested_at,
-	max(processed_at) AS processed_at
-FROM silver.example_events
-GROUP BY 1;
+-- Gold transforms are now handled by PyIceberg via scripts/run_gold.py.
+-- DuckDB is used for compute (SQL transforms on Arrow tables) only.
+-- Iceberg writes go through PyIceberg with proper partition specs and catalog management.

@@ -25,7 +25,7 @@ def main() -> None:
     parser.add_argument(
         "--stage",
         required=True,
-        choices=["silver", "gold", "bronze_views"],
+        choices=["serving", "bronze_views"],
     )
     args = parser.parse_args()
 
@@ -34,17 +34,10 @@ def main() -> None:
 
     if args.stage == "bronze_views":
         run_sql(conn, BASE_DIR / "config" / "bronze.sql")
-    else:
-        run_sql(conn, BASE_DIR / "config" / "etl.sql")
-
-    if args.stage == "silver":
-        run_sql(conn, BASE_DIR / "etl" / "silver.sql")
-        run_sql(conn, BASE_DIR / "serving" / "silver_views.sql")
-    elif args.stage == "gold":
-        run_sql(conn, BASE_DIR / "etl" / "gold.sql")
-        run_sql(conn, BASE_DIR / "serving" / "gold_views.sql")
-    elif args.stage == "bronze_views":
         run_sql(conn, BASE_DIR / "serving" / "bronze_views.sql")
+    elif args.stage == "serving":
+        run_sql(conn, BASE_DIR / "config" / "etl.sql")
+        run_sql(conn, BASE_DIR / "serving" / "gold_views.sql")
 
     conn.close()
 
