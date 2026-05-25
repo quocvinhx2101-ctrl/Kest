@@ -24,7 +24,7 @@ def kest_example_pipeline():
         return "bash -lc 'bash /opt/kest/scripts/run_soda.sh bronze'"
 
     @task.bash
-    def run_duckdb_silver():
+    def run_silver():
         return "bash -lc 'bash /opt/kest/scripts/run_duckdb_stage.sh silver'"
 
     @task.bash
@@ -32,14 +32,18 @@ def kest_example_pipeline():
         return "bash -lc 'bash /opt/kest/scripts/run_soda.sh silver'"
 
     @task.bash
-    def run_duckdb_gold():
+    def run_gold():
         return "bash -lc 'bash /opt/kest/scripts/run_duckdb_stage.sh gold'"
 
     @task.bash
     def run_gold_checks():
         return "bash -lc 'bash /opt/kest/scripts/run_soda.sh gold'"
 
-    run_dlt() >> run_bronze_validation() >> run_duckdb_silver() >> run_silver_checks() >> run_duckdb_gold() >> run_gold_checks()
+    @task.bash
+    def refresh_serving_views():
+        return "bash -lc 'bash /opt/kest/scripts/run_duckdb_stage.sh serving'"
+
+    run_dlt() >> run_bronze_validation() >> run_silver() >> run_silver_checks() >> run_gold() >> run_gold_checks() >> refresh_serving_views()
 
 
 kest_example_pipeline()

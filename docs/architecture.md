@@ -9,8 +9,8 @@ Kest is a single-node, production-capable lean lakehouse optimized for storage-f
 In scope:
 - Ingestion from APIs, files, and web sources.
 - Immutable bronze storage on MinIO.
-- Silver and gold transforms with DuckDB.
-- Apache Iceberg tables on MinIO.
+- Silver and gold transforms with DuckDB (compute) and PyIceberg (writes).
+- Apache Iceberg tables on MinIO with proper partition specs.
 - Airflow LocalExecutor orchestration.
 - Metabase BI access via DuckDB.
 - Soda Core quality checks.
@@ -35,9 +35,10 @@ Out of scope:
 
 - MinIO: object storage for bronze, silver, gold, checkpoints, and temp.
 - Iceberg: table format for silver and gold data.
-- PostgreSQL: Iceberg catalog and Airflow metadata.
+- PyIceberg: official Apache Iceberg Python library for DDL, partition specs, and writes.
+- PostgreSQL: Iceberg SqlCatalog and Airflow metadata.
 - dlt: extract, load, normalize, checkpoint, schema evolution support; no business transforms.
-- DuckDB: silver and gold transforms, analytics serving, and marts.
+- DuckDB: SQL transforms (compute only), analytics serving via `iceberg_scan()`, and marts.
 - Airflow LocalExecutor: orchestration only.
 - Metabase: read-only BI from curated gold tables via DuckDB.
 - Soda Core: data quality checks for bronze, silver, gold gates.
@@ -53,18 +54,20 @@ Out of scope:
 
 1. dlt extracts from sources, normalizes, and loads raw data.
 2. Bronze data lands in MinIO as immutable, append-only objects.
-3. DuckDB reads bronze and produces silver Iceberg tables.
-4. DuckDB produces gold marts and aggregates in Iceberg.
-5. Metabase queries gold tables via DuckDB.
-6. Soda Core validates bronze, silver, gold with escalating checks.
+3. DuckDB reads bronze, transforms data; PyIceberg writes silver Iceberg tables.
+4. DuckDB transforms silver; PyIceberg writes gold Iceberg tables.
+5. DuckDB refreshes serving views via `iceberg_scan()`.
+6. Metabase queries gold tables via DuckDB serving views.
+7. Soda Core validates bronze, silver, gold with escalating checks.
 
 ```mermaid
 flowchart LR
   source[Sources: APIs, files, web] --> dlt[dlt ingestion]
   dlt --> bronze[MinIO bronze (immutable)]
-  bronze --> duckdb[DuckDB transforms]
-  duckdb --> silver[Iceberg silver on MinIO]
-  duckdb --> gold[Iceberg gold on MinIO]
+  bronze --> duckdb[DuckDB compute]
+  duckdb --> pyiceberg[PyIceberg writes]
+  pyiceberg --> silver[Iceberg silver on MinIO]
+  pyiceberg --> gold[Iceberg gold on MinIO]
   gold --> metabase[Metabase via DuckDB]
   airflow[Airflow LocalExecutor] --> dlt
   airflow --> duckdb
@@ -99,7 +102,8 @@ flowchart LR
     iceberg[Iceberg tables]
   end
   subgraph Transform
-    duckdb[DuckDB SQL transforms]
+    duckdb[DuckDB SQL compute]
+    pyiceberg[PyIceberg Iceberg writes]
   end
   subgraph Orchestration
     airflow[Airflow LocalExecutor]
@@ -108,7 +112,8 @@ flowchart LR
     metabase[Metabase read-only]
   end
   dlt --> minio
-  duckdb --> iceberg
+  duckdb --> pyiceberg
+  pyiceberg --> iceberg
   iceberg --> minio
   airflow --> dlt
   airflow --> duckdb
@@ -120,6 +125,7 @@ flowchart LR
 - Bronze is immutable, so any batch can be replayed without destructive changes.
 - dlt checkpoints define last successful ingestion per source.
 - DuckDB transforms are deterministic and can be re-run from bronze or silver.
+- PyIceberg writes are transactional; failed writes do not corrupt table state.
 - Postgres catalog state is required to resolve Iceberg table metadata.
 
 ```mermaid
