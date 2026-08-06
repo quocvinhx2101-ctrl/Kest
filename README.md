@@ -2,9 +2,11 @@
 
 Kest is a single-node, lean lakehouse. It is storage-first, uses open table formats(iceberg), and keeps compute portable. The architecture is intentionally minimal and designed for low operational burden, deterministic pipelines, and future scale-up without data migration.
 
-## Canonical architecture
+## Canonical requirements
 
-The canonical source of truth is [docs/architecture.md](docs/architecture.md). All other docs must align with it.
+The current product source of truth is [docs/requirements.md](docs/requirements.md).
+Architecture and enforceable data contracts will be derived from the approved
+requirements.
 
 ## V1 stack (fixed)
 
@@ -33,8 +35,10 @@ The canonical source of truth is [docs/architecture.md](docs/architecture.md). A
 
 ## Docs layout
 
-- [docs/architecture.md](docs/architecture.md): canonical architecture and lifecycle
-- Phase 1 and Phase 2 docs will reference architecture.md as the source of truth.
+- [docs/requirements.md](docs/requirements.md): product scope, requirements,
+  acceptance workloads, and release gates.
+- Architecture, contracts, and ADRs will be added after the requirements are
+  reviewed.
 
 ## Local run (minimal vertical slice)
 
