@@ -6,6 +6,16 @@ from datetime import datetime, timedelta, timezone
 import psycopg
 from psycopg.types.json import Jsonb
 
+from workload.cybermarket.ids import (
+    BUYER_COUNT,
+    MARKET_COUNT,
+    VENDOR_COUNT,
+    buyer_id,
+    live_id,
+    market_id,
+    vendor_id,
+)
+
 
 def utc_now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
@@ -31,9 +41,8 @@ class LiveEventWriter:
     def close(self):
         self.connection.close()
 
-    def skewed_id(self, prefix, size, width):
-        index = 1 + int((self.random.random() ** 3) * size)
-        return f"{prefix}-{index:0{width}d}"
+    def skewed_index(self, size):
+        return 1 + int((self.random.random() ** 3) * size)
 
     def buyer_session(self):
         started = utc_now()
@@ -52,8 +61,8 @@ class LiveEventWriter:
                 )
             """,
                 (
-                    f"BSA-{uuid.uuid4()}",
-                    self.skewed_id("BUYER", 10000, 7),
+                    live_id("BSA"),
+                    buyer_id(self.skewed_index(BUYER_COUNT)),
                     started,
                     duration,
                     pages,
@@ -77,11 +86,11 @@ class LiveEventWriter:
 
     def purchase(self):
         now = utc_now()
-        event_id = f"EVT-{uuid.uuid4()}"
-        payment_id = f"PPE-{uuid.uuid4()}"
-        vendor = self.skewed_id("SELLER", 1000, 6)
-        buyer = self.skewed_id("BUYER", 10000, 7)
-        platform = f"PLAT-{self.random.randint(1, 10):03d}"
+        event_id = live_id("EVT")
+        payment_id = live_id("PPE")
+        vendor = vendor_id(self.skewed_index(VENDOR_COUNT))
+        buyer = buyer_id(self.skewed_index(BUYER_COUNT))
+        platform = market_id(self.random.randint(1, MARKET_COUNT))
         origin = self.random.choice(("NA", "EU", "APAC", "LATAM"))
         destination = self.random.choice(("NA", "EU", "APAC", "LATAM"))
         amount = round(self.random.lognormvariate(4.2, 0.9), 2)
@@ -244,7 +253,7 @@ class LiveEventWriter:
                 )
             """,
                 (
-                    f"RMP-{uuid.uuid4()}",
+                    live_id("RMP"),
                     event_id,
                     utc_now(),
                     "cyber-risk-lite",

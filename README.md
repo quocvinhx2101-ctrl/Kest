@@ -76,4 +76,8 @@ CDC remain stopped unless explicitly invoked. Its environment is locked in
 `requirements.txt`; `make env` creates the same local Python environment for
 DuckDB, PyIceberg, Parquet/S3 and PostgreSQL development.
 
+Airflow, RisingWave and Lakekeeper are available local capabilities. CyberMarket
+does not schedule DAGs, create RisingWave objects, or publish Iceberg tables yet.
+Those services remain idle until a later workload has a concrete need for them.
+
 See [workload/README.md](workload/README.md) for the object layout and commands.

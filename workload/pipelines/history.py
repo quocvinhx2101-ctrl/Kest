@@ -9,6 +9,14 @@ import duckdb
 
 from workload.core.config import Settings
 from workload.core.storage import list_objects, s3_client
+from workload.cybermarket.ids import (
+    BUYER_COUNT,
+    HISTORY_REFERENCE_COUNT,
+    MARKET_COUNT,
+    PRODUCT_COUNT,
+    PRODUCTS_PER_VENDOR,
+    VENDOR_COUNT,
+)
 
 MIB = 1024**2
 FILE_TARGET_BYTES = 128 * MIB
@@ -24,11 +32,17 @@ TABLE_WEIGHTS = {
     "risk_analytics": 0.055,
     "RiskModelPredictions": 0.08,
 }
+FIXED_TABLE_ROWS = {
+    "markets": MARKET_COUNT,
+    "vendors": VENDOR_COUNT,
+    "buyers": BUYER_COUNT,
+    "products": PRODUCT_COUNT,
+}
 
 
 SELECT_LISTS = {
     "markets": """
-        printf('PLAT-%08d', i) AS "PlatCode",
+        printf('PLAT-%03d', i) AS "PlatCode",
         printf('CyberMarket %d %s', i, md5(i::varchar)) AS "PlatName",
         CASE i % 3 WHEN 0 THEN 'marketplace' ELSE 'specialized' END AS "PlatformType",
         (365 + i % 8000)::bigint AS "AgeDays", 'active' AS "OperStatus",
@@ -42,7 +56,7 @@ SELECT_LISTS = {
         json_object('status', 'compliant', 'audit', md5('market:' || i::varchar)) AS platform_compliance
     """,
     "vendors": """
-        printf('SELLER-%010d', i) AS "SellerKey", (30 + i % 3000)::bigint AS "DaysActive",
+        printf('SELLER-%06d', i) AS "SellerKey", (30 + i % 3000)::bigint AS "DaysActive",
         (3 + (i % 20) / 10.0)::real AS "PerformanceRating", (i % 50000)::varchar AS "TotalTxns",
         (i % 49000)::bigint AS "CompletedTxns", (i % 25)::bigint AS "DisputedEvents",
         CASE i % 10 WHEN 0 THEN 'enhanced' ELSE 'standard' END AS "VerTier",
@@ -53,40 +67,42 @@ SELECT_LISTS = {
         json_object('rating_id', md5('vendor:' || i::varchar), 'reviewed', i % 2 = 0) AS vendor_compliance_ratings
     """,
     "buyers": """
-        printf('BUYER-%012d', i) AS "AcqCode", (i % 2500)::bigint AS "ProfileAge",
+        printf('BUYER-%07d', i) AS "AcqCode", (i % 2500)::bigint AS "ProfileAge",
         (i % 500)::bigint AS "PurchaseCount", CASE i % 3 WHEN 0 THEN 'mfa' ELSE 'standard' END AS "AuthLevel",
         json_object('fingerprint', md5('buyer:' || i::varchar), 'score', (i % 1000) / 1000.0) AS buyer_risk_profile
     """,
     "products": """
-        printf('CAT-%03d', i % 50) AS "ProdCat", printf('SUB-%05d', i % 1000) AS "Subcategory",
-        (i / 100000)::bigint AS "ListingAge", printf('SELLER-%010d', 1 + i % 100000) AS "SellerPointer",
+        printf('CAT-%03d', i % 20) AS "ProdCat", printf('SUB-%05d', i % 100) AS "Subcategory",
+        (i % 4)::bigint AS "ListingAge", printf('SELLER-%06d', 1 + (i - 1) // 4) AS "SellerPointer",
         json_object('stock', i % 500, 'sku_hash', md5('product:' || i::varchar)) AS product_availability
     """,
-    "transactions": """
-        printf('EVT-%014d', i) AS "EventCode", 'purchase' AS "RecordTag",
+    "transactions": f"""
+        printf('EVT-HIST-%014d', i) AS "EventCode", 'purchase' AS "RecordTag",
         TIMESTAMP '2024-01-01' + (i % 31536000) * INTERVAL 1 SECOND AS "EventTimestamp",
-        printf('PLAT-%08d', 1 + i % 10000) AS "PlatformKey",
-        printf('SELLER-%010d', 1 + i % 100000) AS "VendorLink",
-        printf('BUYER-%012d', 1 + i % 1000000) AS "AcqLink",
+        printf('PLAT-%03d', 1 + (i - 1) % {MARKET_COUNT}) AS "PlatformKey",
+        printf('SELLER-%06d', 1 + (i - 1) % {VENDOR_COUNT}) AS "VendorLink",
+        printf('BUYER-%07d', 1 + (i - 1) % {BUYER_COUNT}) AS "AcqLink",
         CASE i % 4 WHEN 0 THEN 'NA' WHEN 1 THEN 'EU' WHEN 2 THEN 'APAC' ELSE 'LATAM' END AS "OriginRegion",
-        CASE (i / 3) % 4 WHEN 0 THEN 'NA' WHEN 1 THEN 'EU' WHEN 2 THEN 'APAC' ELSE 'LATAM' END AS "DestRegion",
-        (i % 2)::bigint AS "CrossBorder", CASE i % 2 WHEN 0 THEN 'direct' ELSE 'multi-hop' END AS "RouteComplex",
+        CASE (i // 3) % 4 WHEN 0 THEN 'NA' WHEN 1 THEN 'EU' WHEN 2 THEN 'APAC' ELSE 'LATAM' END AS "DestRegion",
+        ((i % 4) != ((i // 3) % 4))::bigint AS "CrossBorder",
+        CASE WHEN (i % 4) != ((i // 3) % 4) THEN 'multi-hop' ELSE 'direct' END AS "RouteComplex",
         CASE i % 5 WHEN 0 THEN 'burst' ELSE 'normal' END AS "Transaction_Velocity",
-        CASE i % 2 WHEN 0 THEN 'domestic' ELSE 'cross-border' END AS "Border_cross_border_pre",
+        CASE WHEN (i % 4) != ((i // 3) % 4) THEN 'cross-border' ELSE 'domestic' END AS "Border_cross_border_pre",
         ((i * 37) % 10000 / 100.0)::varchar AS "GeoDistScore",
         json_object('amount', 5 + (i % 250000) / 100.0, 'currency', 'USD', 'status', 'settled',
                     'trace', md5('txn:' || i::varchar)) AS transaction_financials
     """,
-    "transaction_products": """
-        printf('EVT-%014d', 1 + (i - 1) // 2) AS "EventLink",
-        printf('CAT-%03d', (1 + (i - 1) % 1000000) % 50) AS "ProdCat",
-        printf('SUB-%05d', (1 + (i - 1) % 1000000) % 1000) AS "Subcategory",
-        ((1 + (i - 1) % 1000000) / 100000)::bigint AS "ListingAge",
-        printf('SELLER-%010d', 1 + (1 + (i - 1) % 1000000) % 100000) AS "SellerPointer",
-        (5 + (i % 250000) / 100.0)::real AS "PriceAmt", (1 + i % 4)::bigint AS "QtySold"
+    "transaction_products": f"""
+        printf('EVT-HIST-%014d', 1 + (i - 1) // 2) AS "EventLink",
+        printf('CAT-%03d', ((((i - 1) // 2) % {VENDOR_COUNT}) * {PRODUCTS_PER_VENDOR} + 1 + (i - 1) % 2) % 20) AS "ProdCat",
+        printf('SUB-%05d', ((((i - 1) // 2) % {VENDOR_COUNT}) * {PRODUCTS_PER_VENDOR} + 1 + (i - 1) % 2) % 100) AS "Subcategory",
+        (((((i - 1) // 2) % {VENDOR_COUNT}) * {PRODUCTS_PER_VENDOR} + 1 + (i - 1) % 2) % {PRODUCTS_PER_VENDOR})::bigint AS "ListingAge",
+        printf('SELLER-%06d', 1 + ((i - 1) // 2) % {VENDOR_COUNT}) AS "SellerPointer",
+        ((5 + ((1 + (i - 1) // 2) % 250000) / 100.0) * CASE (i - 1) % 2 WHEN 0 THEN 0.45 ELSE 0.55 END)::real AS "PriceAmt",
+        1::bigint AS "QtySold"
     """,
-    "BuyerSessionAnalytics": """
-        printf('BSA-%014d', i) AS "BSA_id", printf('BUYER-%012d', 1 + i % 1000000) AS acq_ref,
+    "BuyerSessionAnalytics": f"""
+        printf('BSA-HIST-%014d', i) AS "BSA_id", printf('BUYER-%07d', 1 + (i - 1) % {BUYER_COUNT}) AS acq_ref,
         TIMESTAMP '2024-01-01' + (i % 31536000) * INTERVAL 1 SECOND AS session_start_time,
         (10 + i % 1800)::integer AS session_duration_seconds, (1 + i % 30)::integer AS pages_viewed_count,
         (i % 15)::integer AS products_viewed_count, (i % 5)::integer AS cart_additions_count,
@@ -99,9 +115,11 @@ SELECT_LISTS = {
         (i % 101)::real AS scroll_depth_pct, (i % 3)::integer AS error_encounters_count,
         ((i * 13) % 100000 / 100.0)::real AS session_value_estimate
     """,
-    "PaymentProcessingEvents": """
-        printf('PPE-%014d', i) AS "PPE_id", printf('EVT-%014d', 1 + i % 1000000) AS transaction_ref,
-        TIMESTAMP '2024-01-01' + (i % 31536000) * INTERVAL 1 SECOND AS event_timestamp,
+    "PaymentProcessingEvents": f"""
+        printf('PPE-HIST-%014d', i) AS "PPE_id",
+        printf('EVT-HIST-%014d', 1 + (i - 1) % {HISTORY_REFERENCE_COUNT}) AS transaction_ref,
+        TIMESTAMP '2024-01-01' + ((1 + (i - 1) % {HISTORY_REFERENCE_COUNT}) % 31536000) * INTERVAL 1 SECOND
+            + (10 + i % 900) * INTERVAL 1 MILLISECOND AS event_timestamp,
         CASE i % 3 WHEN 0 THEN 'card' WHEN 1 THEN 'wallet' ELSE 'bank_transfer' END AS payment_method_type,
         'settled' AS processing_stage, (5 + i % 250000 / 100.0)::real AS amount_requested,
         (5 + i % 250000 / 100.0)::real AS amount_processed, 'USD' AS currency_code,
@@ -114,15 +132,17 @@ SELECT_LISTS = {
         (i % 3)::integer AS retry_count, (25 + i % 900)::integer AS processing_time_ms
     """,
     "risk_analytics": """
-        printf('EVT-%014d', i) AS "TxnLink", (i % 6)::bigint AS "RiskIndicatorCount",
+        printf('EVT-HIST-%014d', i) AS "TxnLink", (i % 6)::bigint AS "RiskIndicatorCount",
         ((i * 17) % 1000 / 1000.0)::real AS "FraudProb",
         CASE WHEN i % 1000 >= 700 THEN 'high' WHEN i % 1000 >= 300 THEN 'medium' ELSE 'low' END AS "ML_Risk",
         (i % 9)::bigint AS "LinkedEvents", (1 + i % 5)::bigint AS "ChainLength",
         json_object('wallet_hash', md5('wallet:' || i::varchar), 'age_days', i % 2500) AS wallet_risk_assessment
     """,
-    "RiskModelPredictions": """
-        printf('RMP-%014d', i) AS "RMP_id", printf('EVT-%014d', 1 + i % 1000000) AS txn_link_ref,
-        TIMESTAMP '2024-01-01' + (i % 31536000) * INTERVAL 1 SECOND AS prediction_timestamp,
+    "RiskModelPredictions": f"""
+        printf('RMP-HIST-%014d', i) AS "RMP_id",
+        printf('EVT-HIST-%014d', 1 + (i - 1) % {HISTORY_REFERENCE_COUNT}) AS txn_link_ref,
+        TIMESTAMP '2024-01-01' + ((1 + (i - 1) % {HISTORY_REFERENCE_COUNT}) % 31536000) * INTERVAL 1 SECOND
+            + (1 + i % 300) * INTERVAL 1 SECOND AS prediction_timestamp,
         'cyber-risk-lite' AS model_name, '1.0.0' AS model_version,
         ((i * 17) % 1000 / 1000.0)::real AS fraud_probability,
         CASE WHEN i % 1000 >= 700 THEN 'high' WHEN i % 1000 >= 300 THEN 'medium' ELSE 'low' END AS risk_category_predicted,
@@ -251,11 +271,9 @@ def main():
                 target = settings.bronze_target_bytes - sum(totals.values())
             else:
                 target = int(settings.bronze_target_bytes * TABLE_WEIGHTS[table])
-            target_rows = (
-                2 * row_counts["transactions"]
-                if table == "transaction_products"
-                else None
-            )
+            target_rows = FIXED_TABLE_ROWS.get(table)
+            if table == "transaction_products":
+                target_rows = 2 * row_counts["transactions"]
             totals[table], row_counts[table] = generate_table(
                 connection,
                 client,

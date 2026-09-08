@@ -6,22 +6,10 @@ import psycopg
 
 from workload.core.config import Settings
 from workload.core.storage import list_objects, s3_client
+from workload.cybermarket.schema import TABLES
 from workload.landing.writer import LandingWriter
 from workload.pipelines.cdc import run as run_cdc
 from workload.pipelines.generator import run as run_generator
-
-TABLES = {
-    "markets",
-    "vendors",
-    "buyers",
-    "products",
-    "transactions",
-    "transaction_products",
-    "BuyerSessionAnalytics",
-    "PaymentProcessingEvents",
-    "risk_analytics",
-    "RiskModelPredictions",
-}
 
 
 def row_counts(connection):
@@ -29,6 +17,24 @@ def row_counts(connection):
         result = {}
         for table in TABLES:
             cursor.execute(f'SELECT count(*) FROM "{table}"')
+            result[table] = cursor.fetchone()[0]
+        return result
+
+
+def live_id_counts(connection):
+    identities = {
+        "BuyerSessionAnalytics": ("BSA_id", "BSA-LIVE-%"),
+        "transactions": ("EventCode", "EVT-LIVE-%"),
+        "PaymentProcessingEvents": ("PPE_id", "PPE-LIVE-%"),
+        "RiskModelPredictions": ("RMP_id", "RMP-LIVE-%"),
+    }
+    with connection.cursor() as cursor:
+        result = {}
+        for table, (column, pattern) in identities.items():
+            cursor.execute(
+                f'SELECT count(*) FROM "{table}" WHERE "{column}" LIKE %s',
+                (pattern,),
+            )
             result[table] = cursor.fetchone()[0]
         return result
 
@@ -49,6 +55,7 @@ def main():
 
     with psycopg.connect(**settings.pg_kwargs()) as connection:
         before_rows = row_counts(connection)
+        before_live_ids = live_id_counts(connection)
 
     counts = run_generator(duration=1.0)
     expected_events = Counter(
@@ -69,6 +76,7 @@ def main():
 
     with psycopg.connect(**settings.pg_kwargs()) as connection:
         after_rows = row_counts(connection)
+        after_live_ids = live_id_counts(connection)
         with connection.cursor() as cursor:
             cursor.execute(
                 "SELECT active FROM pg_replication_slots WHERE slot_name = %s",
@@ -92,6 +100,19 @@ def main():
         actual = after_rows[table] - before_rows[table]
         if actual != delta:
             raise AssertionError(f"{table}: expected +{delta}, got +{actual}")
+
+    expected_live_ids = {
+        "BuyerSessionAnalytics": 8,
+        "transactions": 6,
+        "PaymentProcessingEvents": 6,
+        "RiskModelPredictions": 2,
+    }
+    for table, delta in expected_live_ids.items():
+        actual = after_live_ids[table] - before_live_ids[table]
+        if actual != delta:
+            raise AssertionError(
+                f"{table}: expected +{delta} canonical live IDs, got {actual}"
+            )
 
     new_objects = [
         item

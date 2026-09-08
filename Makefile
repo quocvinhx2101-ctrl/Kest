@@ -1,4 +1,4 @@
-.PHONY: start stop restart logs env lint workload-image workload-setup history cdc generate cdc-drain cdc-test workload-check
+.PHONY: start stop restart logs env lint workload-image workload-setup history cdc generate cdc-drain cdc-test workload-check workload-check-history workload-check-cdc
 
 WORKLOAD_COMPOSE := docker compose -f docker-compose.yml -f compose.workload.yml
 RUFF := UV_CACHE_DIR=.uv-cache UV_TOOL_DIR=.uv-cache/tools uvx --from ruff==0.16.6 ruff
@@ -52,4 +52,10 @@ cdc-test: workload-image
 	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.smoke
 
 workload-check: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.state
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.state --phase setup
+
+workload-check-history: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.state --phase history
+
+workload-check-cdc: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.state --phase cdc
