@@ -1,4 +1,6 @@
-.PHONY: start stop restart logs
+.PHONY: start stop restart logs env workload-image workload-setup history cdc generate cdc-drain cdc-test workload-check
+
+WORKLOAD_COMPOSE := docker compose -f docker-compose.yml -f compose.workload.yml
 
 # Required entry point on first start: Lakekeeper's image has no shell and
 # requires a one-shot metadata migration before its server can become healthy.
@@ -18,3 +20,31 @@ restart:
 
 logs:
 	docker compose logs -f --tail=100
+
+env:
+	uv venv .venv
+	uv pip sync requirements.txt --python .venv/bin/python
+
+workload-image:
+	$(WORKLOAD_COMPOSE) --profile workload build workload
+
+workload-setup: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.setup
+
+history: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.history
+
+cdc: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.cdc
+
+generate: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.generate
+
+cdc-drain: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.cdc --drain
+
+cdc-test: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.smoke_test
+
+workload-check: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.verify

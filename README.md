@@ -68,3 +68,12 @@ The five named volumes preserve PostgreSQL, MinIO and RisingWave state. Airflow
 metadata lives in `postgres-airflow-data`; UI credentials are restored from `.env`.
 RisingWave's `[system]` storage sizes are set when its volume is first initialized.
 Container memory limits total 4.75 GiB; actual idle use is lower.
+
+## CyberMarket workload
+
+The optional workload uses a disposable Python tool container so generators and
+CDC remain stopped unless explicitly invoked. Its environment is locked in
+`requirements.txt`; `make env` creates the same local Python environment for
+DuckDB, PyIceberg, Parquet/S3 and PostgreSQL development.
+
+See [workload/README.md](workload/README.md) for the object layout and commands.
