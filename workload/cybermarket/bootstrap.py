@@ -2,13 +2,13 @@ from pathlib import Path
 
 import psycopg
 
-from workload.config import Settings
+from workload.core.config import Settings
 
 SQL_DIR = Path(__file__).with_name("sql")
 
 
 def main():
-    settings = Settings()
+    settings = Settings.from_env()
     with (
         psycopg.connect(**settings.pg_kwargs(), autocommit=True) as connection,
         connection.cursor() as cursor,

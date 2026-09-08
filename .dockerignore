@@ -2,6 +2,7 @@
 .env
 .venv
 .uv-cache
+.ruff_cache
 docs
 __pycache__
 *.pyc

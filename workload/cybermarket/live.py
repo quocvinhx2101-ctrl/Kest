@@ -1,46 +1,17 @@
-import argparse
-import json
 import random
-import signal
-import time
 import uuid
-from collections import Counter, deque
+from collections import deque
 from datetime import datetime, timedelta, timezone
 
 import psycopg
 from psycopg.types.json import Jsonb
-
-from workload.config import Settings
-
-EVENT_FRAME = (
-    "purchase",
-    "buyer_session",
-    "payment_update",
-    "buyer_session",
-    "risk_prediction",
-    "purchase",
-    "buyer_session",
-    "transaction_status_update",
-    "buyer_session",
-    "purchase",
-    "payment_update",
-    "buyer_session",
-    "purchase",
-    "buyer_session",
-    "risk_prediction",
-    "buyer_session",
-    "purchase",
-    "payment_update",
-    "buyer_session",
-    "purchase",
-)
 
 
 def utc_now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
-class Generator:
+class LiveEventWriter:
     def __init__(self, settings):
         if settings.event_rate != 20:
             raise ValueError("CyberMarket's fixed workload rate must be 20 events/sec")
@@ -310,49 +281,3 @@ class Generator:
 
     def emit(self, event):
         getattr(self, event)()
-
-
-def run(duration=None, ready_event=None):
-    settings = Settings()
-    generator = Generator(settings)
-    counts = Counter()
-    stopping = False
-
-    def stop(*_):
-        nonlocal stopping
-        stopping = True
-
-    signal.signal(signal.SIGTERM, stop)
-    signal.signal(signal.SIGINT, stop)
-    started = time.monotonic()
-    deadline = started + duration if duration else None
-    sequence = 0
-    if ready_event:
-        ready_event.set()
-    try:
-        while not stopping and (deadline is None or time.monotonic() < deadline):
-            event = EVENT_FRAME[sequence % len(EVENT_FRAME)]
-            generator.emit(event)
-            counts[event] += 1
-            sequence += 1
-            target = started + sequence / settings.event_rate
-            time.sleep(max(0, target - time.monotonic()))
-    finally:
-        generator.close()
-    print(json.dumps(dict(sorted(counts.items())), sort_keys=True))
-    return counts
-
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Run the fixed 20 events/sec CyberMarket workload"
-    )
-    parser.add_argument(
-        "--duration", type=float, help="Seconds to run; default runs until stopped"
-    )
-    args = parser.parse_args()
-    run(args.duration)
-
-
-if __name__ == "__main__":
-    main()

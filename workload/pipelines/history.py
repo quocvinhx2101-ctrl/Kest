@@ -7,8 +7,8 @@ from pathlib import Path
 
 import duckdb
 
-from workload.config import Settings
-from workload.storage import list_objects, s3_client
+from workload.core.config import Settings
+from workload.core.storage import list_objects, s3_client
 
 MIB = 1024**2
 FILE_TARGET_BYTES = 128 * MIB
@@ -232,7 +232,7 @@ def main():
         description="Create the ~5 GiB historical bronze Parquet state"
     )
     parser.parse_args()
-    settings = Settings()
+    settings = Settings.from_env()
     client = s3_client(settings)
     parts = existing_parts(client, settings)
     unknown = set(parts) - set(TABLE_WEIGHTS)

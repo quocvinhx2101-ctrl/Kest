@@ -3,6 +3,21 @@
 The workload is opt-in and runs in disposable tool containers. The seven local
 infrastructure services remain the only long-lived default services.
 
+## Source layout
+
+```text
+workload/
+  core/           # environment settings and S3 client
+  cybermarket/    # schema bootstrap, SQL and transactional event writes
+  landing/        # upload-before-ack raw CDC writer
+  pipelines/      # long-running CDC, live generator and bronze history jobs
+  validation/     # one-second smoke test and full state verification
+```
+
+Long-running entry points live in `pipelines/`; domain code does not own process
+signals. Configuration is read explicitly at startup, so importing a module
+never requires environment secrets.
+
 ## Object layout
 
 ```text

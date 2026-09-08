@@ -1,7 +1,7 @@
 import boto3
 from botocore.config import Config
 
-from workload.config import Settings
+from workload.core.config import Settings
 
 
 def s3_client(settings: Settings):

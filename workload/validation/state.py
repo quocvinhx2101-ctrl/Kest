@@ -6,8 +6,8 @@ import psycopg
 from pyarrow import parquet
 from pyiceberg.catalog import load_catalog
 
-from workload.config import Settings
-from workload.storage import list_objects, s3_client
+from workload.core.config import Settings
+from workload.core.storage import list_objects, s3_client
 
 EXPECTED_COLUMNS = {
     "markets": [
@@ -277,7 +277,7 @@ def check_object_storage(settings):
 
 
 def main():
-    settings = Settings()
+    settings = Settings.from_env()
     if settings.s3_bucket != "mini-cybet":
         raise AssertionError(f"Expected bucket mini-cybet, got {settings.s3_bucket}")
     check_postgres(settings)

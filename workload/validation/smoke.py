@@ -4,11 +4,11 @@ from collections import Counter
 
 import psycopg
 
-from workload.cdc import LandingWriter
-from workload.cdc import run as run_cdc
-from workload.config import Settings
-from workload.generate import run as run_generator
-from workload.storage import list_objects, s3_client
+from workload.core.config import Settings
+from workload.core.storage import list_objects, s3_client
+from workload.landing.writer import LandingWriter
+from workload.pipelines.cdc import run as run_cdc
+from workload.pipelines.generator import run as run_generator
 
 TABLES = {
     "markets",
@@ -34,7 +34,7 @@ def row_counts(connection):
 
 
 def main():
-    settings = Settings()
+    settings = Settings.from_env()
     client = s3_client(settings)
     prefix = settings.landing_prefix + "/"
     before_keys = {

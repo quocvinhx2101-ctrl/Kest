@@ -1,6 +1,7 @@
-.PHONY: start stop restart logs env workload-image workload-setup history cdc generate cdc-drain cdc-test workload-check
+.PHONY: start stop restart logs env lint workload-image workload-setup history cdc generate cdc-drain cdc-test workload-check
 
 WORKLOAD_COMPOSE := docker compose -f docker-compose.yml -f compose.workload.yml
+RUFF := UV_CACHE_DIR=.uv-cache UV_TOOL_DIR=.uv-cache/tools uvx --from ruff==0.16.6 ruff
 
 # Required entry point on first start: Lakekeeper's image has no shell and
 # requires a one-shot metadata migration before its server can become healthy.
@@ -25,26 +26,30 @@ env:
 	uv venv .venv
 	uv pip sync requirements.txt --python .venv/bin/python
 
+lint:
+	$(RUFF) format --check workload docker/lakekeeper/bootstrap.py
+	$(RUFF) check workload docker/lakekeeper/bootstrap.py
+
 workload-image:
 	$(WORKLOAD_COMPOSE) --profile workload build workload
 
 workload-setup: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.setup
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.cybermarket.bootstrap
 
 history: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.history
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.pipelines.history
 
 cdc: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.cdc
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.pipelines.cdc
 
 generate: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.generate
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.pipelines.generator
 
 cdc-drain: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.cdc --drain
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.pipelines.cdc --drain
 
 cdc-test: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.smoke_test
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.smoke
 
 workload-check: workload-image
-	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.verify
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.state
