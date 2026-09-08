@@ -1,0 +1,13 @@
+# Small local infrastructure, no streaming workload.
+[system]
+# Fixed when the metadata store is first initialized.
+sstable_size_mb = 16
+parallel_compact_size_mb = 32
+
+[storage]
+shared_buffer_capacity_mb = 32
+min_sstable_size_mb = 4
+
+[storage.cache]
+block_cache_capacity_mb = 32
+meta_cache_capacity_mb = 16
