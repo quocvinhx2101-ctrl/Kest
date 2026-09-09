@@ -28,13 +28,6 @@ HISTORY_STARTED_AT = datetime(2024, 1, 1)
 SAMPLE_SIZE = 256
 
 
-def check_future_layers_empty(settings):
-    client = s3_client(settings)
-    for prefix in ("silver/", "gold/"):
-        if list(list_objects(client, settings.s3_bucket, prefix)):
-            raise AssertionError(f"{prefix} must remain empty")
-
-
 def _history_index(value, prefix):
     match = re.fullmatch(rf"{prefix}-HIST-(\d{{14}})", value)
     if not match:

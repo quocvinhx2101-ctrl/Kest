@@ -1,30 +1,26 @@
 import argparse
 import json
 
-from pyiceberg.catalog import load_catalog
-
 from workload.core.config import Settings
+from workload.lakehouse.catalog import catalog
+from workload.validation.batch import check_batch
 from workload.validation.postgres import check_postgres
 from workload.validation.storage import (
     check_cdc,
-    check_future_layers_empty,
     check_history,
 )
 
-PHASES = ("setup", "history", "cdc")
+PHASES = ("setup", "history", "cdc", "batch")
 
 
 def verify(phase):
     settings = Settings.from_env()
     check_postgres(settings, require_slot=phase == "cdc")
-    check_future_layers_empty(settings)
 
     result = {
         "bucket": settings.s3_bucket,
         "phase": phase,
         "postgres_tables": 10,
-        "silver_objects": 0,
-        "gold_objects": 0,
     }
     if phase == "history":
         total, parquet_count = check_history(settings)
@@ -37,11 +33,11 @@ def verify(phase):
             cdc_slot_active=False,
             landing_objects=check_cdc(settings),
         )
+    if phase == "batch":
+        result.update(check_batch(settings))
 
-    namespaces = load_catalog("kest").list_namespaces()
-    if namespaces:
-        raise AssertionError(f"Iceberg namespaces must remain empty: {namespaces}")
-    result["iceberg_namespaces"] = 0
+    namespaces = catalog(settings).list_namespaces()
+    result["iceberg_namespaces"] = len(namespaces)
     print(json.dumps(result, indent=2, sort_keys=True))
     return result
 

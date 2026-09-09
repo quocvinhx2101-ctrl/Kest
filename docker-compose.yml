@@ -188,7 +188,12 @@ services:
 
   airflow:
     <<: *common
-    image: ${AIRFLOW_IMAGE:?}
+    image: kest/airflow:3.3.0-local
+    build:
+      context: .
+      dockerfile: docker/airflow/Dockerfile
+      args:
+        AIRFLOW_IMAGE: ${AIRFLOW_IMAGE:?}
     mem_limit: 1536m
     cpus: 1.5
     stop_grace_period: 60s
@@ -215,11 +220,36 @@ services:
       AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://127.0.0.1:8080/execution/
       AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER:?}
       AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:?}
+      PGHOST: postgres-source
+      PGPORT: "5432"
+      PGDATABASE: ${POSTGRES_SOURCE_DB:?}
+      PGUSER: ${POSTGRES_SOURCE_USER:?}
+      PGPASSWORD: ${POSTGRES_SOURCE_PASSWORD:?}
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:?}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?}
+      AWS_DEFAULT_REGION: us-east-1
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_BUCKET: ${MINIO_BUCKET:?}
+      BRONZE_PREFIX: ${BRONZE_PREFIX:-bronze/history}
+      ICEBERG_CATALOG: kest
+      SILVER_NAMESPACE: ${SILVER_NAMESPACE:-silver}
+      GOLD_NAMESPACE: ${GOLD_NAMESPACE:-gold}
+      BATCH_DUCKDB_MEMORY: ${BATCH_DUCKDB_MEMORY:-512MB}
+      PYICEBERG_CATALOG__KEST__TYPE: rest
+      PYICEBERG_CATALOG__KEST__URI: http://lakekeeper:8181/catalog
+      PYICEBERG_CATALOG__KEST__WAREHOUSE: ${LAKEKEEPER_WAREHOUSE:?}
+      PYICEBERG_CATALOG__KEST__S3__ENDPOINT: http://minio:9000
+      PYICEBERG_CATALOG__KEST__S3__ACCESS_KEY_ID: ${MINIO_ROOT_USER:?}
+      PYICEBERG_CATALOG__KEST__S3__SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?}
+      PYICEBERG_CATALOG__KEST__S3__PATH_STYLE_ACCESS: "true"
+      PYICEBERG_CATALOG__KEST__S3__REGION: us-east-1
       OMP_NUM_THREADS: "1"
       OPENBLAS_NUM_THREADS: "1"
     command: [bash, /opt/kest/airflow-start.sh]
     volumes:
       - ./docker/airflow/start.sh:/opt/kest/airflow-start.sh:ro,Z
+      - ./docker/airflow/dags:/opt/airflow/dags:ro,Z
+      - ./workload:/opt/kest/workload:ro,Z
     ports:
       - 127.0.0.1:8080:8080
     depends_on:

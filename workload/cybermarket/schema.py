@@ -281,3 +281,21 @@ EXPECTED_TYPES = {
 }
 
 TABLES = frozenset(EXPECTED_COLUMNS)
+
+DIMENSION_TABLES = ("markets", "vendors", "buyers", "products")
+FACT_TABLES = (
+    "transactions",
+    "transaction_products",
+    "BuyerSessionAnalytics",
+    "PaymentProcessingEvents",
+    "risk_analytics",
+    "RiskModelPredictions",
+)
+JSON_COLUMNS = {
+    "markets": "platform_compliance",
+    "vendors": "vendor_compliance_ratings",
+    "buyers": "buyer_risk_profile",
+    "products": "product_availability",
+    "transactions": "transaction_financials",
+    "risk_analytics": "wallet_risk_assessment",
+}

@@ -1,4 +1,4 @@
-.PHONY: start stop restart logs env lint workload-image workload-setup history cdc generate cdc-drain cdc-test workload-check workload-check-history workload-check-cdc
+.PHONY: start stop restart logs env lint workload-image workload-setup history cdc generate cdc-drain cdc-test batch batch-check batch-airflow airflow-dag-check workload-check workload-check-history workload-check-cdc
 
 WORKLOAD_COMPOSE := docker compose -f docker-compose.yml -f compose.workload.yml
 RUFF := UV_CACHE_DIR=.uv-cache UV_TOOL_DIR=.uv-cache/tools uvx --from ruff==0.16.6 ruff
@@ -27,8 +27,8 @@ env:
 	uv pip sync requirements.txt --python .venv/bin/python
 
 lint:
-	$(RUFF) format --check workload docker/lakekeeper/bootstrap.py
-	$(RUFF) check workload docker/lakekeeper/bootstrap.py
+	$(RUFF) format --check workload docker/lakekeeper/bootstrap.py docker/airflow/dags
+	$(RUFF) check workload docker/lakekeeper/bootstrap.py docker/airflow/dags
 
 workload-image:
 	$(WORKLOAD_COMPOSE) --profile workload build workload
@@ -50,6 +50,19 @@ cdc-drain: workload-image
 
 cdc-test: workload-image
 	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.smoke
+
+batch: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.pipelines.batch
+
+batch-check: workload-image
+	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.state --phase batch
+
+batch-airflow:
+	docker compose exec -T airflow airflow dags trigger cybermarket_batch
+
+airflow-dag-check:
+	docker compose exec -T airflow airflow dags list
+	docker compose exec -T airflow airflow dags list-import-errors
 
 workload-check: workload-image
 	$(WORKLOAD_COMPOSE) run --rm workload python -m workload.validation.state --phase setup
